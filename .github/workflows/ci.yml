@@ -13,8 +13,37 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Run tests
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.3'
+
+      - name: Run unit tests
         run: go test -cover ./...
 
-      - name: Check Go version
-        run: go version
+      - name: Install gosec
+        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+      - name: Security analysis (gosec)
+        run: gosec ./...
+
+  style:
+    name: Style
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.3'
+
+      - name: Check formatting (go fmt)
+        run: test -z $(go fmt ./...)
+
+      - name: Run static analysis (staticcheck)
+        uses: dominikh/staticcheck-action@v1
+        with:
+          version: "latest"
